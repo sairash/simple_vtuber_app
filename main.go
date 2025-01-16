@@ -1,15 +1,18 @@
 package main
 
 import (
-	"fmt"
+	"context"
 	"image/color"
 	"log"
 	"math"
+	"os"
 	"time"
 
 	"github.com/gordonklaus/portaudio"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+
+	"github.com/urfave/cli/v3"
 )
 
 type Game struct {
@@ -73,7 +76,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	op.GeoM.Translate(210, 500)
 
 	screen.DrawImage(g.Image, op)
-	ebitenutil.DebugPrint(screen, fmt.Sprintf("%f", g.Amplitude))
+	// ebitenutil.DebugPrint(screen, fmt.Sprintf("%f", g.Amplitude))
 
 }
 
@@ -81,8 +84,8 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 	return 400, 500
 }
 
-func main() {
-	img, _, err := ebitenutil.NewImageFromFile("leohead.png")
+func run_program(image_path string) {
+	img, _, err := ebitenutil.NewImageFromFile(image_path)
 	if err != nil {
 		log.Fatalf("Error loading image: %v", err)
 	}
@@ -94,7 +97,7 @@ func main() {
 	go StartAudioStream(amplitudeChan)
 
 	ebiten.SetWindowSize(400, 500)
-	ebiten.SetWindowTitle("Animate Godlikebobo")
+	ebiten.SetWindowTitle("Vocapp")
 
 	game := &Game{
 		Image:         img,
@@ -106,4 +109,37 @@ func main() {
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func main() {
+	cmd := &cli.Command{
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "character",
+				Aliases: []string{"c"},
+				Value:   "./leohead.png",
+				Usage:   "add a character image path",
+
+				Action: func(ctx context.Context, c *cli.Command, s string) error {
+					c.HideHelp = true
+					run_program(s)
+					return nil
+				},
+			},
+		},
+		Usage:       "You Speak, Character go boom boom.",
+		Description: "Simple Vtubing App where the character moves when you speak.",
+		Authors:     []any{"Sairash Sharma Gautam"},
+		Action: func(ctx context.Context, c *cli.Command) error {
+			if !c.HideHelp {
+				cli.ShowAppHelp(c)
+			}
+			return nil
+		},
+	}
+
+	if err := cmd.Run(context.Background(), os.Args); err != nil {
+		log.Fatal(err)
+	}
+
 }

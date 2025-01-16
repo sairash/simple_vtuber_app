@@ -3,7 +3,10 @@
 You talk, Character go boom boom.
 
 
-![Demo](./assets/demo.mp4)
+
+https://github.com/user-attachments/assets/8425b81f-3876-4f03-87c2-9d9c558d3815
+
+
 
 
 To run the project
